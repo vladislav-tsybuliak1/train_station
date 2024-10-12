@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -62,6 +63,9 @@ class Crew(models.Model):
     first_name = models.CharField(max_length=63, validators=[validate_name])
     last_name = models.CharField(max_length=63, validators=[validate_name])
 
+    class Meta:
+        ordering = ("first_name", "last_name")
+
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"
 
@@ -108,6 +112,9 @@ class Trip(models.Model):
         to=Crew,
         related_name="trips"
     )
+
+    class Meta:
+        ordering = ("departure_time",)
 
     def __str__(self) -> str:
         return f"Trip {self.route} ({self.departure_time}-{self.arrival_time})"
@@ -174,3 +181,18 @@ class Trip(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.full_clean()
         super().save(*args, **kwargs)
+
+
+class Order(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True),
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        related_name="orders",
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return str(self.created_at)
