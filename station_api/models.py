@@ -2,7 +2,11 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from station_api.validators import validate_latitude, validate_longitude
+from station_api.validators import (
+    validate_latitude,
+    validate_longitude,
+    validate_name
+)
 
 
 class Station(models.Model):
@@ -50,3 +54,11 @@ class Route(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.full_clean()
         super().save(*args, **kwargs)
+
+
+class Crew(models.Model):
+    first_name = models.CharField(max_length=63, validators=[validate_name])
+    last_name = models.CharField(max_length=63, validators=[validate_name])
+
+    def __str__(self) -> str:
+        return f"{self.first_name} {self.last_name}"
