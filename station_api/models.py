@@ -2,13 +2,14 @@ from datetime import datetime
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, FileExtensionValidator
 from django.db import models
 
+from station_api.utils import train_image_file_path
 from station_api.validators import (
     validate_latitude,
     validate_longitude,
-    validate_name
+    validate_name, validate_image_size
 )
 
 
@@ -90,6 +91,15 @@ class Train(models.Model):
         to=TrainType,
         related_name="trains",
         on_delete=models.CASCADE
+    )
+    train_image = models.ImageField(
+        upload_to=train_image_file_path,
+        validators=[
+            validate_image_size,
+            FileExtensionValidator(
+                allowed_extensions=["jpg", "jpeg", "png"]
+            )
+        ]
     )
 
     def __str__(self) -> str:
