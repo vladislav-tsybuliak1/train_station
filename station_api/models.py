@@ -8,5 +8,8 @@ class Station(models.Model):
     latitude = models.FloatField(validators=[validate_latitude])
     longitude = models.FloatField(validators=[validate_longitude])
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self) -> str:
         return self.name
