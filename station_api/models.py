@@ -23,17 +23,17 @@ class Station(models.Model):
 
 class Route(models.Model):
     source = models.ForeignKey(
-        Station,
+        to=Station,
         related_name="source_routes",
         on_delete=models.CASCADE
     )
     destination = models.ForeignKey(
-        Station,
+        to=Station,
         related_name="destination_routes",
         on_delete=models.CASCADE
     )
 
-    distance = models.IntegerField(validators=[MinValueValidator(0)])
+    distance = models.FloatField(validators=[MinValueValidator(0)])
 
     def __str__(self) -> str:
         return f"{self.source} - {self.destination}"
@@ -69,3 +69,21 @@ class TrainType(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Train(models.Model):
+    name = models.CharField(max_length=63)
+    cargo_num = models.PositiveSmallIntegerField()
+    places_in_cargo = models.PositiveSmallIntegerField()
+    train_type = models.ForeignKey(
+        to=TrainType,
+        related_name="trains",
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self) -> str:
+        return self.name
+
+    @property
+    def capacity(self) -> int:
+        return self.cargo_num * self.places_in_cargo
