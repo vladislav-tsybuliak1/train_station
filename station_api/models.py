@@ -62,3 +62,10 @@ class Crew(models.Model):
 
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"
+
+
+class TrainType(models.Model):
+    name = models.CharField(max_length=63, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
