@@ -196,3 +196,64 @@ class Order(models.Model):
 
     def __str__(self) -> str:
         return str(self.created_at)
+
+
+class Ticket(models.Model):
+    cargo = models.PositiveSmallIntegerField()
+    seat = models.PositiveSmallIntegerField()
+    trip = models.ForeignKey(
+        to=Trip,
+        related_name="tickets",
+        on_delete=models.CASCADE
+    )
+    order = models.ForeignKey(
+        to=Order,
+        related_name="tickets",
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["cargo", "seat", "trip"],
+                name="unique_cargo_seat_trip"
+            )
+        ]
+        ordering = ("trip", "cargo", "seat")
+
+    def __str__(self) -> str:
+        return f"{self.trip} - (cargo: {self.cargo}, seat: {self.seat}"
+
+    @staticmethod
+    def validate_ticket(
+        cargo: int,
+        seat: int,
+        train: Train,
+        error_to_raise: type[Exception]
+    ) -> None:
+        for ticket_attr_value, ticket_attr_name, train_attr_name in [
+            (cargo, "cargo", "cargo_num"),
+            (seat, "seat", "places_in_cargo"),
+        ]:
+            count_attr = getattr(train, train_attr_name)
+            if not (1 <= ticket_attr_value <= count_attr):
+                raise error_to_raise(
+                    {
+                        ticket_attr_name: f"{ticket_attr_name} "
+                                          f"number must be in this range: "
+                                          f"(1, {train_attr_name}): "
+                                          f"(1, {count_attr})"
+                    }
+                )
+
+    def clean(self) -> None:
+        Ticket.validate_ticket(
+            cargo=self.cargo,
+            seat=self.seat,
+            train=self.trip.train,
+            error_to_raise=ValidationError,
+        )
+
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
