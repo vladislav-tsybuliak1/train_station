@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -40,8 +42,8 @@ class Route(models.Model):
 
     @staticmethod
     def validate_different_stations(
-            source: Station,
-            destination: Station
+        source: Station,
+        destination: Station
     ) -> None:
         if source == destination:
             raise ValidationError(
@@ -87,3 +89,88 @@ class Train(models.Model):
     @property
     def capacity(self) -> int:
         return self.cargo_num * self.places_in_cargo
+
+
+class Trip(models.Model):
+    route = models.ForeignKey(
+        to=Route,
+        related_name="trips",
+        on_delete=models.CASCADE
+    )
+    train = models.ForeignKey(
+        to=Train,
+        related_name="trips",
+        on_delete=models.CASCADE
+    )
+    departure_time = models.DateTimeField()
+    arrival_time = models.DateTimeField()
+    crew = models.ManyToManyField(
+        to=Crew,
+        related_name="trips"
+    )
+
+    def __str__(self) -> str:
+        return f"Trip {self.route} ({self.departure_time}-{self.arrival_time})"
+
+    @staticmethod
+    def validate_times(
+        departure_time: datetime,
+        arrival_time: datetime
+    ) -> None:
+        if departure_time >= arrival_time:
+            raise ValidationError(
+                "Departure time must be before arrival time.")
+
+    @staticmethod
+    def validate_train_not_overlapping(
+        train: Train,
+        departure_time: datetime,
+        arrival_time: datetime
+    ) -> None:
+        overlapping_trips = Trip.objects.filter(
+            train=train,
+            departure_time__lt=arrival_time,
+            arrival_time__gt=departure_time
+        )
+
+        if overlapping_trips.exists():
+            raise ValidationError(
+                "The train is assigned to overlapping trips."
+            )
+
+    @staticmethod
+    def validate_crew_not_overlapping(
+        crew: list[Crew],
+        departure_time: datetime,
+        arrival_time: datetime,
+    ) -> None:
+        overlapping_trips = Trip.objects.filter(
+            crew__in=crew,
+            departure_time__lt=arrival_time,
+            arrival_time__gt=departure_time
+        ).distinct()
+
+        if overlapping_trips.exists():
+            raise ValidationError(
+                "A crew cannot be assigned to overlapping trips."
+            )
+
+    def clean(self) -> None:
+        Trip.validate_times(
+            departure_time=self.departure_time,
+            arrival_time=self.arrival_time
+        )
+        Trip.validate_train_not_overlapping(
+            train=self.train,
+            departure_time=self.departure_time,
+            arrival_time=self.arrival_time
+        )
+        Trip.validate_crew_not_overlapping(
+            crew=self.crew,
+            departure_time=self.departure_time,
+            arrival_time=self.arrival_time,
+        )
+
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
