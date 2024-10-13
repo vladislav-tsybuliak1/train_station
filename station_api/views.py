@@ -24,7 +24,7 @@ class StationViewSet(
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.all()
+    queryset = Route.objects.select_related("source", "destination")
     serializer_class = RouteSerializer
     filterset_class = RouteFilter
 
