@@ -2,6 +2,7 @@ from rest_framework import mixins, viewsets
 
 from station_api.filters import (
     StationFilter,
+    RouteFilter,
 )
 from station_api.models import Station, Route
 from station_api.serializers import (
@@ -25,6 +26,7 @@ class StationViewSet(
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
+    filterset_class = RouteFilter
 
     def get_serializer_class(self) -> type[RouteSerializer]:
         if self.action in ["list", "retrieve"]:
