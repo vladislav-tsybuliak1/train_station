@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # 3rd apps
     "debug_toolbar",
     "rest_framework",
+    "django_filters",
 
     # custom apps
     "station_api",
@@ -145,3 +146,11 @@ MEDIA_URL = "/media/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Django Rest Framework
+
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS":
+        ["django_filters.rest_framework.DjangoFilterBackend"],
+}
