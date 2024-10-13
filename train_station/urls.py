@@ -22,7 +22,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v1/train-station/", include("station_api.urls", namespace="station-api"))
+    path(
+        "api/v1/train-station/",
+        include("station_api.urls", namespace="station-api")
+    )
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
