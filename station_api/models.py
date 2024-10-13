@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, FileExtensionValidator
 from django.db import models
 
-from station_api.utils import train_image_file_path
+from station_api.utils import train_image_file_path, crew_image_file_path
 from station_api.validators import (
     validate_latitude,
     validate_longitude,
@@ -75,6 +75,16 @@ class Route(models.Model):
 class Crew(models.Model):
     first_name = models.CharField(max_length=63, validators=[validate_name])
     last_name = models.CharField(max_length=63, validators=[validate_name])
+    crew_image = models.ImageField(
+        null=True,
+        upload_to=crew_image_file_path,
+        validators=[
+            validate_image_size,
+            FileExtensionValidator(
+                allowed_extensions=["jpg", "jpeg", "png"]
+            )
+        ]
+    )
 
     class Meta:
         ordering = ("first_name", "last_name")
