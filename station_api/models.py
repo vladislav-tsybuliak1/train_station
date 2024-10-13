@@ -36,8 +36,15 @@ class Route(models.Model):
         related_name="destination_routes",
         on_delete=models.CASCADE
     )
-
     distance = models.FloatField(validators=[MinValueValidator(0)])
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source", "destination"],
+                name="unique_source_destination"
+            )
+        ]
 
     def __str__(self) -> str:
         return f"{self.source} - {self.destination}"
