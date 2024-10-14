@@ -163,56 +163,8 @@ class Trip(models.Model):
             raise error_to_raise(
                 "Departure time must be before arrival time.")
 
-    @staticmethod
-    def validate_train_not_overlapping(
-        train: Train,
-        departure_time: datetime,
-        arrival_time: datetime,
-        error_to_raise: type[Exception],
-    ) -> None:
-        overlapping_trips = Trip.objects.filter(
-            train=train,
-            departure_time__lt=arrival_time,
-            arrival_time__gt=departure_time
-        )
-
-        if overlapping_trips.exists():
-            raise error_to_raise(
-                "The train is assigned to overlapping trips."
-            )
-
-    @staticmethod
-    def validate_crew_not_overlapping(
-        crew: list[Crew],
-        departure_time: datetime,
-        arrival_time: datetime,
-        error_to_raise: type[Exception],
-    ) -> None:
-        overlapping_trips = Trip.objects.filter(
-            crew__in=crew,
-            departure_time__lt=arrival_time,
-            arrival_time__gt=departure_time
-        ).distinct()
-
-        if overlapping_trips.exists():
-            raise error_to_raise(
-                "A crew cannot be assigned to overlapping trips."
-            )
-
     def clean(self) -> None:
         Trip.validate_times(
-            departure_time=self.departure_time,
-            arrival_time=self.arrival_time,
-            error_to_raise=ValidationError
-        )
-        Trip.validate_train_not_overlapping(
-            train=self.train,
-            departure_time=self.departure_time,
-            arrival_time=self.arrival_time,
-            error_to_raise=ValidationError
-        )
-        Trip.validate_crew_not_overlapping(
-            crew=self.crew,
             departure_time=self.departure_time,
             arrival_time=self.arrival_time,
             error_to_raise=ValidationError
