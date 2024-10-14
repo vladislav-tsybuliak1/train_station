@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from station_api.filters import (
     StationFilter,
-    RouteFilter,
+    RouteFilter, CrewFilter,
 )
 from station_api.models import Station, Route, Crew
 from station_api.serializers import (
@@ -46,6 +46,7 @@ class RouteViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    filterset_class = CrewFilter
 
     def get_serializer_class(self) -> type[CrewSerializer]:
         if self.action in ["list", "retrieve"]:

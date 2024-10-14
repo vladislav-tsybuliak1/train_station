@@ -1,6 +1,7 @@
 import django_filters
+from django.db.models import Q, QuerySet
 
-from station_api.models import Station, Route
+from station_api.models import Station, Route, Crew
 
 
 class StationFilter(django_filters.FilterSet):
@@ -24,3 +25,23 @@ class RouteFilter(django_filters.FilterSet):
     class Meta:
         model = Route
         fields = ("source", "destination")
+
+
+class CrewFilter(django_filters.FilterSet):
+    full_name = django_filters.CharFilter(method="filter_by_full_name")
+
+    class Meta:
+        model = Crew
+        fields = ["full_name"]
+
+    def filter_by_full_name(self, queryset, name, value) -> QuerySet:
+        names = value.split()
+        if len(names) == 2:
+            first_name, last_name = names
+            return queryset.filter(
+                Q(first_name__icontains=first_name)
+                & Q(last_name__icontains=last_name)
+            )
+        return queryset.filter(
+            Q(first_name__icontains=value) | Q(last_name__icontains=value)
+        )
