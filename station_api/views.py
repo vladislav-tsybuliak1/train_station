@@ -10,6 +10,7 @@ from station_api.filters import (
     CrewFilter,
     TrainTypeFilter,
     TrainFilter,
+    TripFilter,
 )
 from station_api.models import Station, Route, Crew, TrainType, Train, Trip
 from station_api.serializers import (
@@ -152,6 +153,7 @@ class TripViewSet(viewsets.ModelViewSet):
         )
     )
     serializer_class = TripSerializer
+    filterset_class = TripFilter
 
     def get_serializer_class(self) -> type[TripSerializer]:
         if self.action == "list":
