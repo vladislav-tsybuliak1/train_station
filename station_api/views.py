@@ -1,15 +1,22 @@
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, status
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from station_api.filters import (
     StationFilter,
     RouteFilter,
 )
-from station_api.models import Station, Route
+from station_api.models import Station, Route, Crew
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
     RouteReadSerializer,
-    RouteCreateUpdateSerializer
+    RouteCreateUpdateSerializer,
+    CrewSerializer,
+    CrewReadSerializer,
+    CrewCreateUpdateSerializer,
+    CrewImageSerializer,
 )
 
 
@@ -34,3 +41,34 @@ class RouteViewSet(viewsets.ModelViewSet):
         if self.action in ["create", "update", "partial_update"]:
             return RouteCreateUpdateSerializer
         return RouteSerializer
+
+
+class CrewViewSet(viewsets.ModelViewSet):
+    queryset = Crew.objects.all()
+    serializer_class = CrewSerializer
+
+    def get_serializer_class(self) -> type[CrewSerializer]:
+        if self.action in ["list", "retrieve"]:
+            return CrewReadSerializer
+        if self.action in ["create", "update", "partial_update"]:
+            return CrewCreateUpdateSerializer
+        if self.action == "upload_image":
+            return CrewImageSerializer
+        return CrewSerializer
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+    )
+    def upload_image(
+        self,
+        request: Request,
+        pk: int | None = None
+    ) -> Response:
+        """Endpoint for uploading image to specific crew"""
+        crew = self.get_object()
+        serializer = self.get_serializer(crew, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
