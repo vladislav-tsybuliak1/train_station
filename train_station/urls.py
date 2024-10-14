@@ -19,6 +19,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, \
+    SpectacularRedocView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -27,6 +29,16 @@ urlpatterns = [
         include("station_api.urls", namespace="station-api")
     ),
     path("api/v1/user/", include("user_api.urls", namespace="user-api")),
+    path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/v1/doc/swagger/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger",
+    ),
+    path(
+        "api/v1/doc/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
