@@ -24,7 +24,7 @@ class RouteSerializer(serializers.ModelSerializer):
 
 
 class RouteReadSerializer(RouteSerializer):
-    source = serializers.CharField(source="source.name", read_only=True)
+    source = serializers.StringRelatedField(read_only=True)
     destination = serializers.CharField(
         source="destination.name",
         read_only=True
@@ -177,7 +177,9 @@ class TripRetrieveSerializer(TripListSerializer):
 
     def get_crew(self, obj: Trip) -> list[str]:
         return [
-            f"{crew.first_name} {crew.last_name}" for crew in obj.crew.all()
+            f"{crew.first_name} {crew.last_name}"
+            for crew
+            in obj.crew.all()
         ]
 
 
