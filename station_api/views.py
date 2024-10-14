@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -37,7 +38,7 @@ class StationViewSet(
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.select_related("source", "destination")
+    queryset = Route.objects.all()
     serializer_class = RouteSerializer
     filterset_class = RouteFilter
 
@@ -47,6 +48,12 @@ class RouteViewSet(viewsets.ModelViewSet):
         if self.action in ["create", "update", "partial_update"]:
             return RouteCreateUpdateSerializer
         return RouteSerializer
+
+    def get_queryset(self) -> QuerySet:
+        queryset = super().get_queryset()
+        if self.action in ["list", "retrieve"]:
+            queryset = Route.objects.select_related("source", "destination")
+        return queryset
 
 
 class CrewViewSet(viewsets.ModelViewSet):
