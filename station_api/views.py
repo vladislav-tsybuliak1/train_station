@@ -12,7 +12,15 @@ from station_api.filters import (
     TrainFilter,
     TripFilter,
 )
-from station_api.models import Station, Route, Crew, TrainType, Train, Trip
+from station_api.models import (
+    Station,
+    Route,
+    Crew,
+    TrainType,
+    Train,
+    Trip,
+    Order
+)
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -31,6 +39,8 @@ from station_api.serializers import (
     TripCreateUpdateSerializer,
     TripListSerializer,
     TripRetrieveSerializer,
+    OrderSerializer,
+    OrderListSerializer,
 )
 
 
@@ -177,3 +187,27 @@ class TripViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             queryset = queryset.prefetch_related("crew")
         return queryset
+
+
+class OrderViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Order.objects.prefetch_related(
+        "tickets__trip"
+    )
+    serializer_class = OrderSerializer
+
+    def get_queryset(self) -> QuerySet:
+        queryset = super().get_queryset()
+        queryset = queryset.filter(user=self.request.user)
+        return queryset
+
+    def get_serializer_class(self) -> type[OrderSerializer]:
+        if self.action == "list":
+            return OrderListSerializer
+        return OrderSerializer
+
+    def perform_create(self, serializer: OrderSerializer):
+        serializer.save(user=self.request.user)
