@@ -157,4 +157,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": (
         "station_api.pagination.TrainStationPaginator"
     ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "station_api.permissions.IsAdminOrIfAuthenticatedReadOnly"
+    ]
 }
