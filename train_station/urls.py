@@ -25,7 +25,8 @@ urlpatterns = [
     path(
         "api/v1/train-station/",
         include("station_api.urls", namespace="station-api")
-    )
+    ),
+    path("api/v1/user/", include("user_api.urls", namespace="user-api")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
