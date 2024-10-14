@@ -5,6 +5,7 @@ from station_api.models import (
     Station,
     Route,
     Crew,
+    TrainType,
 )
 
 
@@ -69,3 +70,9 @@ class CrewCreateUpdateSerializer(CrewSerializer):
 class CrewImageSerializer(CrewSerializer):
     class Meta(CrewSerializer.Meta):
         fields = ("id", "crew_image")
+
+
+class TrainTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainType
+        fields = ("id", "name")
