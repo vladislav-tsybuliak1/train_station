@@ -7,7 +7,8 @@ from station_api.views import (
     CrewViewSet,
     TrainTypeViewSet,
     TrainViewSet,
-    TripViewSet
+    TripViewSet,
+    OrderViewSet
 )
 
 
@@ -18,6 +19,7 @@ router.register("crews", CrewViewSet)
 router.register("train-types", TrainTypeViewSet)
 router.register("trains", TrainViewSet)
 router.register("trips", TripViewSet)
+router.register("orders", OrderViewSet)
 
 urlpatterns = [
     path("", include(router.urls))
