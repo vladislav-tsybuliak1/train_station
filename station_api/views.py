@@ -9,7 +9,7 @@ from station_api.filters import (
     CrewFilter,
     TrainTypeFilter,
 )
-from station_api.models import Station, Route, Crew, TrainType
+from station_api.models import Station, Route, Crew, TrainType, Train
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -20,6 +20,9 @@ from station_api.serializers import (
     CrewCreateUpdateSerializer,
     CrewImageSerializer,
     TrainTypeSerializer,
+    TrainSerializer,
+    TrainReadSerializer,
+    TrainCreateUpdateSerializer, TrainImageSerializer,
 )
 
 
@@ -86,3 +89,34 @@ class TrainTypeViewSet(
     queryset = TrainType.objects.all()
     serializer_class = TrainTypeSerializer
     filterset_class = TrainTypeFilter
+
+
+class TrainViewSet(viewsets.ModelViewSet):
+    queryset = Train.objects.all()
+    serializer_class = TrainSerializer
+
+    def get_serializer_class(self) -> type[TrainSerializer]:
+        if self.action in ["list", "retrieve"]:
+            return TrainReadSerializer
+        if self.action in ["create", "update", "partial_update"]:
+            return TrainCreateUpdateSerializer
+        if self.action == "upload_image":
+            return TrainImageSerializer
+        return TrainSerializer
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+    )
+    def upload_image(
+        self,
+        request: Request,
+        pk: int | None = None
+    ) -> Response:
+        """Endpoint for uploading image to specific train"""
+        train = self.get_object()
+        serializer = self.get_serializer(train, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
