@@ -52,7 +52,7 @@ class RouteViewSet(viewsets.ModelViewSet):
     def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
         if self.action in ["list", "retrieve"]:
-            queryset = Route.objects.select_related("source", "destination")
+            queryset = queryset.select_related("source", "destination")
         return queryset
 
 
@@ -110,6 +110,12 @@ class TrainViewSet(viewsets.ModelViewSet):
         if self.action == "upload_image":
             return TrainImageSerializer
         return TrainSerializer
+
+    def get_queryset(self) -> QuerySet:
+        queryset = super().get_queryset()
+        if self.action in ["list", "retrieve"]:
+            queryset = queryset.select_related("train_type")
+        return queryset
 
     @action(
         methods=["POST"],
