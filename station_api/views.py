@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import QuerySet, F, Count
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -11,7 +11,7 @@ from station_api.filters import (
     TrainTypeFilter,
     TrainFilter,
 )
-from station_api.models import Station, Route, Crew, TrainType, Train
+from station_api.models import Station, Route, Crew, TrainType, Train, Trip
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -24,7 +24,12 @@ from station_api.serializers import (
     TrainTypeSerializer,
     TrainSerializer,
     TrainReadSerializer,
-    TrainCreateUpdateSerializer, TrainImageSerializer,
+    TrainCreateUpdateSerializer,
+    TrainImageSerializer,
+    TripSerializer,
+    TripCreateUpdateSerializer,
+    TripListSerializer,
+    TripRetrieveSerializer,
 )
 
 
@@ -135,3 +140,25 @@ class TrainViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TripViewSet(viewsets.ModelViewSet):
+    queryset = (
+        Trip.objects
+        .annotate(
+            tickets_available=(
+                F("train__cargo_num") * F("train__places_in_cargo")
+                - Count("tickets")
+            )
+        )
+    )
+    serializer_class = TripSerializer
+
+    def get_serializer_class(self) -> type[TripSerializer]:
+        if self.action == "list":
+            return TripListSerializer
+        if self.action == "retrieve":
+            return TripRetrieveSerializer
+        if self.action in ["create", "update", "partial_update"]:
+            return TripCreateUpdateSerializer
+        return TripSerializer
