@@ -13,6 +13,6 @@ def delete_crew_image(sender, instance, **kwargs) -> None:
 
 
 @receiver(pre_delete, sender=Train)
-def delete_crew_image(sender, instance, **kwargs) -> None:
+def delete_train_image(sender, instance, **kwargs) -> None:
     if os.path.isfile(instance.train_image.path):
         os.remove(instance.train_image.path)
