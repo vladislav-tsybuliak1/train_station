@@ -143,7 +143,8 @@ class Trip(models.Model):
     arrival_time = models.DateTimeField()
     crew = models.ManyToManyField(
         to=Crew,
-        related_name="trips"
+        related_name="trips",
+        blank=True
     )
 
     class Meta:
