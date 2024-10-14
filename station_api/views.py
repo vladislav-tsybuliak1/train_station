@@ -5,7 +5,9 @@ from rest_framework.response import Response
 
 from station_api.filters import (
     StationFilter,
-    RouteFilter, CrewFilter,
+    RouteFilter,
+    CrewFilter,
+    TrainTypeFilter,
 )
 from station_api.models import Station, Route, Crew, TrainType
 from station_api.serializers import (
@@ -16,7 +18,8 @@ from station_api.serializers import (
     CrewSerializer,
     CrewReadSerializer,
     CrewCreateUpdateSerializer,
-    CrewImageSerializer, TrainTypeSerializer,
+    CrewImageSerializer,
+    TrainTypeSerializer,
 )
 
 
@@ -82,3 +85,4 @@ class TrainTypeViewSet(
 ):
     queryset = TrainType.objects.all()
     serializer_class = TrainTypeSerializer
+    filterset_class = TrainTypeFilter

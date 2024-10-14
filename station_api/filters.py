@@ -1,7 +1,7 @@
 import django_filters
 from django.db.models import Q, QuerySet
 
-from station_api.models import Station, Route, Crew
+from station_api.models import Station, Route, Crew, TrainType
 
 
 class StationFilter(django_filters.FilterSet):
@@ -45,3 +45,11 @@ class CrewFilter(django_filters.FilterSet):
         return queryset.filter(
             Q(first_name__icontains=value) | Q(last_name__icontains=value)
         )
+
+
+class TrainTypeFilter(django_filters.FilterSet):
+    name = django_filters.CharFilter(lookup_expr="icontains")
+
+    class Meta:
+        model = TrainType
+        fields = ("name",)
