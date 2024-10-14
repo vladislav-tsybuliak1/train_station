@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
@@ -9,6 +10,8 @@ from station_api.models import (
     TrainType,
     Train,
     Trip,
+    Ticket,
+    Order,
 )
 
 
@@ -162,29 +165,6 @@ class TripListSerializer(TripSerializer):
         return obj.arrival_time.strftime("%d %b %Y %H:%M")
 
 
-class TripRetrieveSerializer(TripListSerializer):
-    route = RouteReadSerializer(many=False, read_only=True)
-    train = TrainReadSerializer(many=False, read_only=True)
-    crew = serializers.SerializerMethodField()
-
-    class Meta(TripSerializer.Meta):
-        fields = (
-            "id",
-            "route",
-            "train",
-            "departure_time",
-            "arrival_time",
-            "crew"
-        )
-
-    def get_crew(self, obj: Trip) -> list[str]:
-        return [
-            f"{crew.first_name} {crew.last_name}"
-            for crew
-            in obj.crew.all()
-        ]
-
-
 class TripCreateUpdateSerializer(TripSerializer):
     route_id = serializers.IntegerField(write_only=True)
     train_id = serializers.IntegerField(write_only=True)
@@ -267,3 +247,82 @@ class TripCreateUpdateSerializer(TripSerializer):
         instance.crew.set(crew)
 
         return instance
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("id", "cargo", "seat", "trip")
+
+    def validate(self, attrs: dict) -> dict:
+        data = super().validate(attrs=attrs)
+        Ticket.validate_ticket(
+            cargo=attrs["cargo"],
+            seat=attrs["seat"],
+            train=attrs["trip"].train,
+            error_to_raise=ValidationError
+        )
+        return data
+
+
+class TicketListSerializer(TicketSerializer):
+    trip = TripListSerializer(many=False, read_only=True)
+
+
+class TicketSeatsSerializer(TicketSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("cargo", "seat")
+
+
+class TripRetrieveSerializer(TripListSerializer):
+    route = RouteReadSerializer(many=False, read_only=True)
+    train = TrainReadSerializer(many=False, read_only=True)
+    crew = serializers.SerializerMethodField()
+    taken_places = TicketSeatsSerializer(
+        source="tickets",
+        many=True,
+        read_only=True
+    )
+
+    class Meta(TripSerializer.Meta):
+        fields = (
+            "id",
+            "route",
+            "train",
+            "departure_time",
+            "arrival_time",
+            "crew",
+            "taken_places"
+        )
+
+    def get_crew(self, obj: Trip) -> list[str]:
+        return [
+            f"{crew.first_name} {crew.last_name}"
+            for crew
+            in obj.crew.all()
+        ]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True, read_only=False, allow_empty=False)
+    created_at = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = ("id", "tickets", "created_at")
+
+    def create(self, validated_data: dict) -> Order:
+        with transaction.atomic():
+            tickets_data = validated_data.pop("tickets")
+            order = Order.objects.create(**validated_data)
+            for ticket_data in tickets_data:
+                Ticket.objects.create(order=order, **ticket_data)
+            return order
+
+    def get_created_at(self, obj: Order) -> str:
+        return obj.created_at.strftime("%d %b %Y %H:%M")
+
+
+class OrderListSerializer(OrderSerializer):
+    tickets = TicketListSerializer(many=True, read_only=True)
