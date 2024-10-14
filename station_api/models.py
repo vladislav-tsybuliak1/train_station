@@ -110,6 +110,7 @@ class Train(models.Model):
         on_delete=models.CASCADE
     )
     train_image = models.ImageField(
+        null=True,
         upload_to=train_image_file_path,
         validators=[
             validate_image_size,
