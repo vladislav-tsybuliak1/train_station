@@ -6,6 +6,7 @@ from station_api.models import (
     Route,
     Crew,
     TrainType,
+    Train,
 )
 
 
@@ -76,3 +77,40 @@ class TrainTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrainType
         fields = ("id", "name")
+
+
+class TrainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Train
+        fields = (
+            "id",
+            "name",
+            "cargo_num",
+            "places_in_cargo",
+            "capacity",
+            "train_type",
+            "train_image"
+        )
+
+
+class TrainReadSerializer(TrainSerializer):
+    train_type = serializers.CharField(
+        source="train_type.name",
+        read_only=True
+    )
+
+
+class TrainCreateUpdateSerializer(TrainSerializer):
+    class Meta(TrainSerializer.Meta):
+        fields = (
+            "id",
+            "name",
+            "cargo_num",
+            "places_in_cargo",
+            "train_type"
+        )
+
+
+class TrainImageSerializer(TrainSerializer):
+    class Meta(TrainSerializer.Meta):
+        fields = ("id", "train_image")
