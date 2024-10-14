@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
 from station_api.models import (
     Station,
@@ -119,6 +120,10 @@ class TrainImageSerializer(TrainSerializer):
 
 class TripSerializer(serializers.ModelSerializer):
     route = serializers.StringRelatedField(read_only=True)
+    train = serializers.CharField(
+        source="train.name",
+        read_only=True
+    )
 
     class Meta:
         model = Trip
@@ -126,10 +131,6 @@ class TripSerializer(serializers.ModelSerializer):
 
 
 class TripListSerializer(TripSerializer):
-    train_name = serializers.CharField(
-        source="train.name",
-        read_only=True
-    )
     train_type = serializers.CharField(
         source="train.train_type",
         read_only=True
@@ -146,7 +147,7 @@ class TripListSerializer(TripSerializer):
         fields = (
             "id",
             "route",
-            "train_name",
+            "train",
             "train_type",
             "departure_time",
             "arrival_time",
@@ -185,14 +186,24 @@ class TripRetrieveSerializer(TripListSerializer):
 
 
 class TripCreateUpdateSerializer(TripSerializer):
+    route_id = serializers.IntegerField(write_only=True)
+    train_id = serializers.IntegerField(write_only=True)
+    crew_ids = serializers.ListField(
+        child=serializers.IntegerField(write_only=True),
+        write_only=True
+    )
+
     class Meta(TripSerializer.Meta):
         fields = (
             "id",
             "route",
+            "route_id",
             "train",
+            "train_id",
             "departure_time",
             "arrival_time",
-            "crew"
+            "crew",
+            "crew_ids",
         )
 
     def validate(self, attrs: dict) -> dict:
@@ -209,3 +220,50 @@ class TripCreateUpdateSerializer(TripSerializer):
             error_to_raise=ValidationError
         )
         return data
+
+    def create(self, validated_data: dict) -> Trip:
+        route_id = validated_data.pop("route_id")
+        train_id = validated_data.pop("train_id")
+        crew_ids = validated_data.pop("crew_ids", [])
+
+        route = get_object_or_404(Route, pk=route_id)
+        train = get_object_or_404(Train, pk=train_id)
+        crew = [get_object_or_404(Crew, pk=crew_id) for crew_id in crew_ids]
+
+        trip = Trip.objects.create(
+            route=route,
+            train=train,
+            **validated_data
+        )
+
+        trip.crew.set(crew)
+
+        return trip
+
+    def update(self, instance: Trip, validated_data: dict) -> Trip:
+        route_id = validated_data.pop("route_id", instance.route.id)
+        train_id = validated_data.pop("train_id", instance.train.id)
+        crew_ids = validated_data.pop(
+            "crew_ids",
+            list(instance.crew.values_list("id", flat=True))
+        )
+
+        route = get_object_or_404(Route, pk=route_id)
+        train = get_object_or_404(Train, pk=train_id)
+        crew = [get_object_or_404(Crew, pk=crew_id) for crew_id in crew_ids]
+
+        instance.route = route
+        instance.train = train
+        instance.departure_time = validated_data.get(
+            "departure_time",
+            instance.departure_time
+        )
+        instance.arrival_time = validated_data.get(
+            "arrival_time",
+            instance.arrival_time
+        )
+        instance.save()
+
+        instance.crew.set(crew)
+
+        return instance
