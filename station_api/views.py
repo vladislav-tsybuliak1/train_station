@@ -145,12 +145,10 @@ class TrainViewSet(viewsets.ModelViewSet):
 class TripViewSet(viewsets.ModelViewSet):
     queryset = (
         Trip.objects
-        .annotate(
-            tickets_available=(
-                F("train__cargo_num")
-                * F("train__places_in_cargo")
-                - Count("tickets")
-            )
+        .select_related(
+            "route__source",
+            "route__destination",
+            "train__train_type"
         )
     )
     serializer_class = TripSerializer
@@ -166,10 +164,14 @@ class TripViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
-        if self.action in ["list", "retrieve"]:
-            queryset = queryset.select_related(
-                "route__destination",
-                "route__source",
-                "train__train_type"
+        if self.action == "list":
+            queryset = queryset.annotate(
+                tickets_available=(
+                    F("train__cargo_num")
+                    * F("train__places_in_cargo")
+                    - Count("tickets")
+                )
             )
+        if self.action == "retrieve":
+            queryset = queryset.prefetch_related("crew")
         return queryset

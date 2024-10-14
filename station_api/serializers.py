@@ -118,13 +118,14 @@ class TrainImageSerializer(TrainSerializer):
 
 
 class TripSerializer(serializers.ModelSerializer):
+    route = serializers.StringRelatedField(read_only=True)
+
     class Meta:
         model = Trip
         fields = "__all__"
 
 
 class TripListSerializer(TripSerializer):
-    route = serializers.StringRelatedField(read_only=True)
     train_name = serializers.CharField(
         source="train.name",
         read_only=True
