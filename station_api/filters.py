@@ -1,7 +1,7 @@
 import django_filters
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, F, ExpressionWrapper, IntegerField
 
-from station_api.models import Station, Route, Crew, TrainType
+from station_api.models import Station, Route, Crew, TrainType, Train
 
 
 class StationFilter(django_filters.FilterSet):
@@ -53,3 +53,32 @@ class TrainTypeFilter(django_filters.FilterSet):
     class Meta:
         model = TrainType
         fields = ("name",)
+
+
+class TrainFilter(django_filters.FilterSet):
+    capacity_min = django_filters.NumberFilter(method="filter_capacity_min")
+    capacity_max = django_filters.NumberFilter(method="filter_capacity_max")
+    train_type_name = django_filters.CharFilter(
+        field_name="train_type__name",
+        lookup_expr="icontains"
+    )
+
+    class Meta:
+        model = Train
+        fields = ("train_type_name",)
+
+    def filter_capacity_min(self, queryset, name, value) -> QuerySet:
+        return queryset.annotate(
+            annotated_capacity=ExpressionWrapper(
+                F("cargo_num") * F("places_in_cargo"),
+                output_field=IntegerField()
+            )
+        ).filter(annotated_capacity__gte=value)
+
+    def filter_capacity_max(self, queryset, name, value) -> QuerySet:
+        return queryset.annotate(
+            annotated_capacity=ExpressionWrapper(
+                F("cargo_num") * F("places_in_cargo"),
+                output_field=IntegerField()
+            )
+        ).filter(annotated_capacity__lte=value)

@@ -9,6 +9,7 @@ from station_api.filters import (
     RouteFilter,
     CrewFilter,
     TrainTypeFilter,
+    TrainFilter,
 )
 from station_api.models import Station, Route, Crew, TrainType, Train
 from station_api.serializers import (
@@ -101,6 +102,7 @@ class TrainTypeViewSet(
 class TrainViewSet(viewsets.ModelViewSet):
     queryset = Train.objects.all()
     serializer_class = TrainSerializer
+    filterset_class = TrainFilter
 
     def get_serializer_class(self) -> type[TrainSerializer]:
         if self.action in ["list", "retrieve"]:
