@@ -7,7 +7,7 @@ from station_api.filters import (
     StationFilter,
     RouteFilter, CrewFilter,
 )
-from station_api.models import Station, Route, Crew
+from station_api.models import Station, Route, Crew, TrainType
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -16,7 +16,7 @@ from station_api.serializers import (
     CrewSerializer,
     CrewReadSerializer,
     CrewCreateUpdateSerializer,
-    CrewImageSerializer,
+    CrewImageSerializer, TrainTypeSerializer,
 )
 
 
@@ -73,3 +73,12 @@ class CrewViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TrainTypeViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = TrainType.objects.all()
+    serializer_class = TrainTypeSerializer
