@@ -151,7 +151,11 @@ class Trip(models.Model):
         ordering = ("departure_time",)
 
     def __str__(self) -> str:
-        return f"Trip {self.route} ({self.departure_time}-{self.arrival_time})"
+        return (
+            f"Trip {self.route} "
+            f"({self.departure_time.strftime("%d %b %Y %H:%M")}-"
+            f"{self.arrival_time.strftime("%d %b %Y %H:%M")})"
+        )
 
     @staticmethod
     def validate_times(
@@ -187,7 +191,7 @@ class Order(models.Model):
         ordering = ("-created_at",)
 
     def __str__(self) -> str:
-        return str(self.created_at)
+        return self.created_at.strftime("%d %b %Y %H:%M")
 
 
 class Ticket(models.Model):
@@ -214,7 +218,7 @@ class Ticket(models.Model):
         ordering = ("trip", "cargo", "seat")
 
     def __str__(self) -> str:
-        return f"{self.trip} - (cargo: {self.cargo}, seat: {self.seat}"
+        return f"{self.trip} - (cargo: {self.cargo}, seat: {self.seat})"
 
     @staticmethod
     def validate_ticket(
