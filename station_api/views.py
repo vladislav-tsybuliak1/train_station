@@ -22,6 +22,9 @@ from station_api.models import (
     Trip,
     Order
 )
+from station_api.schemas.stations import (
+    station_list_create_schema,
+)
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -45,6 +48,7 @@ from station_api.serializers import (
 )
 
 
+@station_list_create_schema
 class StationViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
