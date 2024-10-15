@@ -7,9 +7,9 @@ from drf_spectacular.utils import (
     OpenApiResponse
 )
 
-from station_api.schemas.examples.common_errors import (
-    error_401_unauthorized,
-    error_403_forbidden
+from station_api.schemas.common_responses import (
+    unauthorized_response,
+    forbidden_response,
 )
 from station_api.schemas.examples.stations import (
     station_list_json,
@@ -37,15 +37,16 @@ station_list_create_schema = extend_schema_view(
                 required=False,
             )
         ],
-        responses={
-            200: StationSerializer()
-        },
         examples=[
             OpenApiExample(
                 name="Station list example",
                 value=station_list_json,
             )
-        ]
+        ],
+        responses={
+            200: StationSerializer(),
+            401: unauthorized_response
+        },
     ),
     create=extend_schema(
         description="Create a new station",
@@ -85,28 +86,8 @@ station_list_create_schema = extend_schema_view(
                     ),
                 ]
             ),
-            401: OpenApiResponse(
-                description="Unauthorized",
-                response=OpenApiTypes.OBJECT,
-                examples=[
-                    OpenApiExample(
-                        name="Unauthorized example",
-                        value=error_401_unauthorized,
-                        response_only=True,
-                    ),
-                ]
-            ),
-            403: OpenApiResponse(
-                description="Forbidden",
-                response=OpenApiTypes.OBJECT,
-                examples=[
-                    OpenApiExample(
-                        name="Forbidden example",
-                        value=error_403_forbidden,
-                        response_only=True,
-                    ),
-                ]
-            )
+            401: unauthorized_response,
+            403: forbidden_response,
         }
     )
 )

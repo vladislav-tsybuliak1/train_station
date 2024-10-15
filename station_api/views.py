@@ -22,9 +22,8 @@ from station_api.models import (
     Trip,
     Order
 )
-from station_api.schemas.stations import (
-    station_list_create_schema,
-)
+from station_api.schemas.routes import route_set_schema
+from station_api.schemas.stations import station_list_create_schema
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -59,6 +58,7 @@ class StationViewSet(
     filterset_class = StationFilter
 
 
+@route_set_schema
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
