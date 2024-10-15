@@ -64,3 +64,30 @@ class AuthenticatedTrainTypeApiTests(TestCase):
     def test_create_train_type_forbidden(self) -> None:
         response = self.client.post(TRAIN_TYPE_URL, self.payload)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class AdminTrainTypeApiTest(TestCase):
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="test@test.com",
+            password="testpassword",
+            is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_create_train_type(self) -> None:
+        payload = {"name": "Test"}
+        response = self.client.post(TRAIN_TYPE_URL, payload)
+        train_type = TrainType.objects.get(id=response.data["id"])
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(payload["name"], getattr(train_type, "name"))
+
+    def test_create_train_type_with_same_name(self) -> None:
+        payload = {"name": "Test"}
+        response = self.client.post(TRAIN_TYPE_URL, payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.post(TRAIN_TYPE_URL, payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
