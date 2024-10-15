@@ -47,7 +47,6 @@ class AuthenticatedStationApiTests(TestCase):
             longitude=31.32
         )
 
-
     def test_station_list(self) -> None:
         response = self.client.get(STATION_URL)
         stations = Station.objects.all()
@@ -55,7 +54,6 @@ class AuthenticatedStationApiTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["results"], serializer.data)
-
 
     def test_filter_by_name(self) -> None:
         name_to_search = "cher"
@@ -66,7 +64,45 @@ class AuthenticatedStationApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["results"], serializer.data)
 
-
     def test_create_station_forbidden(self) -> None:
         response = self.client.post(STATION_URL, self.payload)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class AdminStationApiTests(TestCase):
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="test@test.com",
+            password="testpassword",
+            is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+        self.payload = {
+            "name": "Kyiv",
+            "latitude": 50.45,
+            "longitude": 30.52,
+        }
+
+    def test_create_station(self) -> None:
+        response = self.client.post(STATION_URL, self.payload)
+        station = Station.objects.get(id=response.data["id"])
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        for key in self.payload:
+            self.assertEqual(self.payload[key], getattr(station, key))
+
+    def test_create_station_with_invalid_latitude_and_longitude(self) -> None:
+        self.payload["latitude"] = 100
+        self.payload["longitude"] = 100
+        response = self.client.post(STATION_URL, self.payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_station_with_same_name(self) -> None:
+        response = self.client.post(STATION_URL, self.payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.post(STATION_URL, self.payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
