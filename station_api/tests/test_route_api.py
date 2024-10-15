@@ -203,13 +203,13 @@ class AdminRouteApiTest(TestCase):
 
     def test_partial_update_route(self) -> None:
         route = self.route_1
+        self.payload.pop("distance")
         response = self.client.patch(detail_url(route.id), self.payload)
         route.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.payload["source"], route.source.id)
         self.assertEqual(self.payload["destination"], route.destination.id)
-        self.assertEqual(self.payload["distance"], route.distance)
 
     def test_delete_route(self) -> None:
         route = self.route_1

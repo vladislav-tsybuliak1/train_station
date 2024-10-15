@@ -26,7 +26,7 @@ class NotAuthenticatedCrewApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class AuthenticatedCrewApiTest(TestCase):
+class AuthenticatedCrewApiTests(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
@@ -85,3 +85,64 @@ class AuthenticatedCrewApiTest(TestCase):
     def test_delete_crew_forbidden(self) -> None:
         response = self.client.delete(detail_url(1))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class AdminCrewApiTests(TestCase):
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="test@test.com",
+            password="testpassword",
+            is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+        self.crew = Crew.objects.create(
+            first_name="John",
+            last_name="Doe"
+        )
+
+        self.payload = {
+            "first_name": "Test",
+            "last_name": "Test"
+        }
+
+    def test_create_crew(self) -> None:
+        response = self.client.post(CREW_URL, self.payload)
+        crew = Crew.objects.get(id=response.data["id"])
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.payload["first_name"], crew.first_name)
+        self.assertEqual(self.payload["last_name"], crew.last_name)
+
+    def test_create_crew_with_invalid_name(self) -> None:
+        self.payload["first_name"] = "With12numbers"
+        response = self.client.post(CREW_URL, self.payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_crew(self) -> None:
+        crew = self.crew
+        response = self.client.put(detail_url(crew.id), self.payload)
+        crew.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.payload["first_name"], crew.first_name)
+        self.assertEqual(self.payload["last_name"], crew.last_name)
+
+    def test_partial_update_crew(self) -> None:
+        crew = self.crew
+        payload = {"first_name": "Test"}
+        response = self.client.patch(detail_url(crew.id), payload)
+        crew.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(payload["first_name"], crew.first_name)
+
+    def test_delete_crew(self) -> None:
+        crew = self.crew
+        response = self.client.delete(detail_url(crew.id))
+        crew_exists = Crew.objects.filter(id=crew.id).exists()
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(crew_exists)
