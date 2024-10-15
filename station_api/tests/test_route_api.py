@@ -5,10 +5,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from station_api.models import Station, Route
-from station_api.serializers import (
-    RouteReadSerializer,
-    RouteCreateUpdateSerializer
-)
+from station_api.serializers import RouteReadSerializer
 from station_api.views import RouteViewSet
 
 
