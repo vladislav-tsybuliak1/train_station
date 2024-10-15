@@ -17,3 +17,35 @@ class TrainStationPaginator(PageNumberPagination):
                 "results": data,
             }
         )
+
+    def get_paginated_response_schema(self, schema: dict) -> dict:
+        return {
+            "type": "object",
+            "properties": {
+                "pages": {
+                    "type": "integer",
+                    "example": 4,
+                },
+                "count": {
+                    "type": "integer",
+                    "example": 18,
+                },
+                "next": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": (
+                        "http://localhost:8000/api/v1/train-station/?page=3"
+                    )
+                },
+                "previous": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": (
+                        "http://localhost:8000/api/v1/train-station/?page=1"
+                    )
+                },
+                "results": schema,
+            },
+        }
