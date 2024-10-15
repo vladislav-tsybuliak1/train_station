@@ -7,7 +7,7 @@ from drf_spectacular.utils import (
     OpenApiResponse
 )
 
-from station_api.schemas.common_responses import (
+from station_api.schemas.examples.common_responses import (
     unauthorized_response,
     forbidden_response,
 )
