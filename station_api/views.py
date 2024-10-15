@@ -23,6 +23,7 @@ from station_api.models import (
     Order
 )
 from station_api.schemas.crews import crew_set_schema
+from station_api.schemas.orders import order_list_create_schema
 from station_api.schemas.train_types import (
     train_type_list_create_schema
 )
@@ -206,6 +207,7 @@ class TripViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+@order_list_create_schema
 class OrderViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,

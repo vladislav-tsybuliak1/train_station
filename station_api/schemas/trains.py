@@ -139,7 +139,7 @@ train_set_schema = extend_schema_view(
             401: unauthorized_response
         },
     ),
-    create = extend_schema(
+    create=extend_schema(
         description="Create a new train",
         request=TrainCreateUpdateSerializer(),
         examples=[
