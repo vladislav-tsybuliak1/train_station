@@ -66,7 +66,7 @@ class AuthenticatedTrainTypeApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
-class AdminTrainTypeApiTest(TestCase):
+class AdminTrainTypeApiTests(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
