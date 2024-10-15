@@ -27,6 +27,7 @@ from station_api.serializers import (
     RouteCreateUpdateSerializer,
 )
 
+
 route_request_example = OpenApiExample(
     name="Route request example",
     value=route_create_update_request_json,

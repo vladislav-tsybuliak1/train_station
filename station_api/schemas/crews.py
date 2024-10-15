@@ -16,10 +16,12 @@ from station_api.schemas.examples.crews import (
     crew_create_update_request_json,
     crew_create_update_response_json,
     crew_detail_json,
+    crew_upload_image_response_json,
     error_400_empty_fields,
     error_400_invalid_names,
-    error_404_not_found, crew_upload_image_response_json,
-    error_400_invalid_image_extension, error_400_invalid_image_size,
+    error_404_not_found,
+    error_400_invalid_image_extension,
+    error_400_invalid_image_size,
 )
 from station_api.serializers import (
     CrewReadSerializer,

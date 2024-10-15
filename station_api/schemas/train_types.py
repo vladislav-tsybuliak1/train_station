@@ -11,9 +11,13 @@ from station_api.schemas.examples.common_responses import (
     unauthorized_response,
     forbidden_response,
 )
-from station_api.schemas.examples.train_types import train_type_list_json, \
-    train_type_create_request_json, train_type_create_response_json, \
-    error_400_empty_fields, error_400_name_already_exists
+from station_api.schemas.examples.train_types import (
+    train_type_list_json,
+    train_type_create_request_json,
+    train_type_create_response_json,
+    error_400_empty_fields,
+    error_400_name_already_exists
+)
 from station_api.serializers import TrainTypeSerializer
 
 
