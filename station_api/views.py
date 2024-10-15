@@ -29,6 +29,7 @@ from station_api.schemas.train_types import (
 from station_api.schemas.routes import route_set_schema
 from station_api.schemas.stations import station_list_create_schema
 from station_api.schemas.trains import train_set_schema
+from station_api.schemas.trips import trip_set_schema
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -168,6 +169,7 @@ class TrainViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@trip_set_schema
 class TripViewSet(viewsets.ModelViewSet):
     queryset = (
         Trip.objects
