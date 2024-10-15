@@ -8,6 +8,7 @@ from station_api.models import Station
 from station_api.serializers import StationSerializer
 from station_api.views import StationViewSet
 
+
 STATION_URL = reverse("station-api:station-list")
 PAGE_SIZE = StationViewSet.pagination_class.page_size
 
@@ -57,7 +58,7 @@ class AuthenticatedStationApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["results"], serializer.data)
 
-    def test_filter_by_name(self) -> None:
+    def test_station_filter_by_name(self) -> None:
         name_to_search = "cher"
         response = self.client.get(STATION_URL, {"name": name_to_search})
         stations = (
