@@ -1,6 +1,5 @@
 from drf_spectacular.utils import OpenApiExample
 
-from station_api.schemas.examples.common_responses import forbidden_response
 
 register_request_example = OpenApiExample(
     name="User register request example",
