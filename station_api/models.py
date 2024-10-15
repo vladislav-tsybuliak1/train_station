@@ -77,6 +77,7 @@ class Crew(models.Model):
     last_name = models.CharField(max_length=63, validators=[validate_name])
     crew_image = models.ImageField(
         null=True,
+        blank=True,
         upload_to=crew_image_file_path,
         validators=[
             validate_image_size,
@@ -111,6 +112,7 @@ class Train(models.Model):
     )
     train_image = models.ImageField(
         null=True,
+        blank=True,
         upload_to=train_image_file_path,
         validators=[
             validate_image_size,
