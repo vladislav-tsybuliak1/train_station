@@ -1,5 +1,7 @@
 from drf_spectacular.utils import OpenApiExample
 
+from station_api.schemas.examples.common_responses import forbidden_response
+
 register_request_example = OpenApiExample(
     name="User register request example",
     value={
@@ -60,4 +62,22 @@ email_already_exists_example = OpenApiExample(
         ]
     },
     response_only=True,
+)
+
+user_detail_example = OpenApiExample(
+    name="User detail example",
+    value={
+        "id": 1,
+        "email": "admin@gmail.com",
+        "is_staff": True
+    },
+    response_only=True
+)
+
+forbidden_example = OpenApiExample(
+    name="Forbidden example",
+    value={
+        "detail": "Authentication credentials were not provided."
+    },
+    response_only=True
 )
