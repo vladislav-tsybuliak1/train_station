@@ -6,8 +6,10 @@ from rest_framework.test import APIClient
 
 from station_api.models import Station
 from station_api.serializers import StationSerializer
+from station_api.views import StationViewSet
 
 STATION_URL = reverse("station-api:station-list")
+PAGE_SIZE = StationViewSet.pagination_class.page_size
 
 
 class NotAuthenticatedStationApiTests(TestCase):
@@ -49,7 +51,7 @@ class AuthenticatedStationApiTests(TestCase):
 
     def test_station_list(self) -> None:
         response = self.client.get(STATION_URL)
-        stations = Station.objects.all()
+        stations = Station.objects.all()[:PAGE_SIZE]
         serializer = StationSerializer(stations, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -58,7 +60,9 @@ class AuthenticatedStationApiTests(TestCase):
     def test_filter_by_name(self) -> None:
         name_to_search = "cher"
         response = self.client.get(STATION_URL, {"name": name_to_search})
-        stations = Station.objects.filter(name__icontains=name_to_search)
+        stations = (
+            Station.objects.filter(name__icontains=name_to_search)[:PAGE_SIZE]
+        )
         serializer = StationSerializer(stations, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
