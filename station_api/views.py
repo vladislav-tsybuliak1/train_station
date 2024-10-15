@@ -23,6 +23,9 @@ from station_api.models import (
     Order
 )
 from station_api.schemas.crews import crew_set_schema
+from station_api.schemas.train_types import (
+    train_type_list_create_schema
+)
 from station_api.schemas.routes import route_set_schema
 from station_api.schemas.stations import station_list_create_schema
 from station_api.serializers import (
@@ -113,6 +116,7 @@ class CrewViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@train_type_list_create_schema
 class TrainTypeViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,

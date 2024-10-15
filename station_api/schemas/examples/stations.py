@@ -1,41 +1,35 @@
-station_list_json = {
-    "pages": 2,
-    "count": 7,
-    "next": "http://localhost:8000/api/v1/train-station/stations/?page=2",
-    "previous": None,
-    "results": [
-        {
-            "id": 3,
-            "name": "Chernihiv",
-            "latitude": 51.5,
-            "longitude": 31.32
-        },
-        {
-            "id": 4,
-            "name": "Chernivtsi",
-            "latitude": 48.29,
-            "longitude": 25.39
-        },
-        {
-            "id": 7,
-            "name": "Donetsk",
-            "latitude": 48.01,
-            "longitude": 37.81
-        },
-        {
-            "id": 1,
-            "name": "Kyiv",
-            "latitude": 50.45,
-            "longitude": 30.52
-        },
-        {
-            "id": 2,
-            "name": "Lviv",
-            "latitude": 49.85,
-            "longitude": 24.03
-        }
-    ]
-}
+station_list_json = [
+    {
+        "id": 3,
+        "name": "Chernihiv",
+        "latitude": 51.5,
+        "longitude": 31.32
+    },
+    {
+        "id": 4,
+        "name": "Chernivtsi",
+        "latitude": 48.29,
+        "longitude": 25.39
+    },
+    {
+        "id": 7,
+        "name": "Donetsk",
+        "latitude": 48.01,
+        "longitude": 37.81
+    },
+    {
+        "id": 1,
+        "name": "Kyiv",
+        "latitude": 50.45,
+        "longitude": 30.52
+    },
+    {
+        "id": 2,
+        "name": "Lviv",
+        "latitude": 49.85,
+        "longitude": 24.03
+    }
+]
 
 station_create_request_json = {
     "name": "Lutsk",

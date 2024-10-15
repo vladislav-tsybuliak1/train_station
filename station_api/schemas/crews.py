@@ -105,7 +105,7 @@ crew_set_schema = extend_schema_view(
             )
         ],
         responses={
-            200: CrewReadSerializer(),
+            200: CrewReadSerializer(many=False),
             401: unauthorized_response
         },
     ),

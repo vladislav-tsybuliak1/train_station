@@ -94,8 +94,8 @@ route_set_schema = extend_schema_view(
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
                 description=(
-                    "Filter by destination name or its part, case insensitive. "
-                    "Example: '?destination=chernivtsi'"
+                    "Filter by destination name or its part,"
+                    " case insensitive. Example: '?destination=chernivtsi'"
                 ),
                 required=False,
             )
@@ -107,7 +107,7 @@ route_set_schema = extend_schema_view(
             )
         ],
         responses={
-            200: RouteReadSerializer(),
+            200: RouteReadSerializer(many=True),
             401: unauthorized_response
         },
     ),

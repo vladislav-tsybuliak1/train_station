@@ -11,60 +11,55 @@ from station_api.schemas.examples.common_responses import (
     unauthorized_response,
     forbidden_response,
 )
-from station_api.schemas.examples.stations import (
-    station_list_json,
-    station_create_request_json,
-    station_create_response_json,
-    error_400_empty_fields,
-    error_400_same_station_name,
-    error_400_not_valid_latitude_and_longitude
-)
-from station_api.serializers import StationSerializer
+from station_api.schemas.examples.train_types import train_type_list_json, \
+    train_type_create_request_json, train_type_create_response_json, \
+    error_400_empty_fields, error_400_name_already_exists
+from station_api.serializers import TrainTypeSerializer
 
 
-station_list_create_schema = extend_schema_view(
+train_type_list_create_schema = extend_schema_view(
     list=extend_schema(
-        description="Retrieve list of stations, allowing filter",
+        description="Retrieve list of train types, allowing filter",
         parameters=[
             OpenApiParameter(
                 name="name",
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
                 description=(
-                    "Filter by station name or its part, case insensitive. "
-                    "Example: '?name=chernivtsi'"
+                    "Filter by train type name or its part, case insensitive. "
+                    "Example: '?name=fast'"
                 ),
                 required=False,
             )
         ],
         examples=[
             OpenApiExample(
-                name="Station list example",
-                value=station_list_json,
+                name="Train type list example",
+                value=train_type_list_json,
             )
         ],
         responses={
-            200: StationSerializer(many=True),
+            200: TrainTypeSerializer(many=True),
             401: unauthorized_response
         },
     ),
     create=extend_schema(
-        description="Create a new station",
-        request=StationSerializer(),
+        description="Create a new train type",
+        request=TrainTypeSerializer(),
         examples=[
             OpenApiExample(
-                name="Station request example",
-                value=station_create_request_json,
+                name="Train type request example",
+                value=train_type_create_request_json,
                 request_only=True,
             ),
             OpenApiExample(
-                name="Station response example",
-                value=station_create_response_json,
+                name="Train type response example",
+                value=train_type_create_response_json,
                 response_only=True,
             )
         ],
         responses={
-            201: StationSerializer(),
+            201: TrainTypeSerializer(),
             400: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
@@ -75,15 +70,10 @@ station_list_create_schema = extend_schema_view(
                         response_only=True,
                     ),
                     OpenApiExample(
-                        name="Not unique station name example",
-                        value=error_400_same_station_name,
+                        name="Not unique train type name example",
+                        value=error_400_name_already_exists,
                         response_only=True,
-                    ),
-                    OpenApiExample(
-                        name="Not valid latitude and longitude example",
-                        value=error_400_not_valid_latitude_and_longitude,
-                        response_only=True,
-                    ),
+                    )
                 ]
             ),
             401: unauthorized_response,

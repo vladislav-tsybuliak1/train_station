@@ -1,41 +1,35 @@
-route_list_json = {
-    "pages": 2,
-    "count": 7,
-    "next": "http://localhost:8000/api/v1/train-station/routes/?page=2",
-    "previous": None,
-    "results": [
-        {
-            "id": 1,
-            "source": "Chernivtsi",
-            "destination": "Chernihiv",
-            "distance": 332.0
-        },
-        {
-            "id": 2,
-            "source": "Chernihiv",
-            "destination": "Kyiv",
-            "distance": 332.0
-        },
-        {
-            "id": 3,
-            "source": "Kyiv",
-            "destination": "Chernivtsi",
-            "distance": 550.0
-        },
-        {
-            "id": 4,
-            "source": "Lviv",
-            "destination": "Chernivtsi",
-            "distance": 750.0
-        },
-        {
-            "id": 5,
-            "source": "Chernivtsi",
-            "destination": "Kyiv",
-            "distance": 750.0
-        }
-    ]
-}
+route_list_json = [
+    {
+        "id": 1,
+        "source": "Chernivtsi",
+        "destination": "Chernihiv",
+        "distance": 332.0
+    },
+    {
+        "id": 2,
+        "source": "Chernihiv",
+        "destination": "Kyiv",
+        "distance": 332.0
+    },
+    {
+        "id": 3,
+        "source": "Kyiv",
+        "destination": "Chernivtsi",
+        "distance": 550.0
+    },
+    {
+        "id": 4,
+        "source": "Lviv",
+        "destination": "Chernivtsi",
+        "distance": 750.0
+    },
+    {
+        "id": 5,
+        "source": "Chernivtsi",
+        "destination": "Kyiv",
+        "distance": 750.0
+    }
+]
 
 route_create_update_request_json = {
     "source": 1,
@@ -56,7 +50,6 @@ route_detail_json = {
     "destination": "Chernihiv",
     "distance": 332.0
 }
-
 
 error_400_empty_fields = {
     "source": [

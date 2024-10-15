@@ -18,7 +18,7 @@ class TrainStationPaginator(PageNumberPagination):
             }
         )
 
-    def get_paginated_response_schema(self, schema: dict) -> dict:
+    def get_paginated_response_schema(self, schema) -> dict:
         return {
             "type": "object",
             "properties": {
