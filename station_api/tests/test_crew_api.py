@@ -1,3 +1,7 @@
+import os
+import tempfile
+
+from PIL import Image
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework import status
@@ -15,6 +19,10 @@ PAGE_SIZE = CrewViewSet.pagination_class.page_size
 
 def detail_url(crew_id: int) -> str:
     return reverse("station-api:crew-detail", args=[crew_id])
+
+
+def image_upload_url(crew_id: int) -> str:
+    return reverse("station-api:crew-upload-image", args=[crew_id])
 
 
 class NotAuthenticatedCrewApiTests(TestCase):
@@ -86,6 +94,20 @@ class AuthenticatedCrewApiTests(TestCase):
         response = self.client.delete(detail_url(1))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_upload_image_to_crew_forbidden(self) -> None:
+        url = image_upload_url(1)
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as ntf:
+            img = Image.new("RGB", (10, 10))
+            img.save(ntf, format="JPEG")
+            ntf.seek(0)
+            response = self.client.post(
+                url,
+                {"crew_image": ntf},
+                format="multipart"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
 class AdminCrewApiTests(TestCase):
     def setUp(self) -> None:
@@ -146,3 +168,52 @@ class AdminCrewApiTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(crew_exists)
+
+    def test_upload_image_to_crew(self) -> None:
+        crew = self.crew
+        url = image_upload_url(crew.id)
+        with tempfile.NamedTemporaryFile(suffix=".png") as ntf:
+            img = Image.new("RGB", (10, 10))
+            img.save(ntf, format="PNG")
+            ntf.seek(0)
+            response = self.client.post(
+                url,
+                {"crew_image": ntf},
+                format="multipart"
+            )
+        crew.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(os.path.exists(crew.crew_image.path))
+
+        crew.crew_image.delete()
+
+    def test_upload_not_valid_size_image_to_crew(self) -> None:
+        crew = self.crew
+        url = image_upload_url(crew.id)
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as ntf:
+            img = Image.new("RGB", (10000, 10000))
+            img.save(ntf, format="JPEG")
+            ntf.seek(0)
+            response = self.client.post(
+                url,
+                {"crew_image": ntf},
+                format="multipart"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_upload_not_valid_extension_image_to_crew(self) -> None:
+        crew = self.crew
+        url = image_upload_url(crew.id)
+        with tempfile.NamedTemporaryFile(suffix=".gif") as ntf:
+            img = Image.new("RGB", (10, 10))
+            img.save(ntf, format="GIF")
+            ntf.seek(0)
+            response = self.client.post(
+                url,
+                {"crew_image": ntf},
+                format="multipart"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

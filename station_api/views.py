@@ -104,7 +104,6 @@ class CrewViewSet(viewsets.ModelViewSet):
         methods=["POST"],
         detail=True,
         url_path="upload-image",
-        permission_classes=[IsAdminUser],
     )
     def upload_image(
         self,
@@ -155,7 +154,6 @@ class TrainViewSet(viewsets.ModelViewSet):
         methods=["POST"],
         detail=True,
         url_path="upload-image",
-        permission_classes=[IsAdminUser],
     )
     def upload_image(
         self,
