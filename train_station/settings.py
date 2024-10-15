@@ -188,8 +188,8 @@ SIMPLE_JWT = {
 # Spectacular settings
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Cinema API",
-    "DESCRIPTION": "Order cinema tickets",
+    "TITLE": "Train Station API",
+    "DESCRIPTION": "Order train tickets",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_SETTINGS": {
