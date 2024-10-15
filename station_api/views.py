@@ -28,6 +28,7 @@ from station_api.schemas.train_types import (
 )
 from station_api.schemas.routes import route_set_schema
 from station_api.schemas.stations import station_list_create_schema
+from station_api.schemas.trains import train_set_schema
 from station_api.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -127,6 +128,7 @@ class TrainTypeViewSet(
     filterset_class = TrainTypeFilter
 
 
+@train_set_schema
 class TrainViewSet(viewsets.ModelViewSet):
     queryset = Train.objects.all()
     serializer_class = TrainSerializer

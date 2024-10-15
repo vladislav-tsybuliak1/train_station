@@ -11,40 +11,41 @@ from station_api.schemas.examples.common_responses import (
     unauthorized_response,
     forbidden_response,
 )
-from station_api.schemas.examples.crews import (
-    crew_list_json,
-    crew_create_update_request_json,
-    crew_create_update_response_json,
-    crew_detail_json,
-    crew_upload_image_response_json,
+from station_api.schemas.examples.trains import (
+    train_list_json,
+    train_create_update_request_json,
+    train_create_update_response_json,
+    train_detail_json,
+    train_upload_image_response_json,
     error_400_empty_fields,
-    error_400_invalid_names,
-    error_404_not_found,
+    error_400_invalid_cargo_num_and_places_in_cargo,
+    error_400_invalid_train_type,
     error_400_invalid_image_extension,
     error_400_invalid_image_size,
+    error_404_not_found,
 )
 from station_api.serializers import (
-    CrewReadSerializer,
-    CrewCreateUpdateSerializer,
-    CrewImageSerializer
+    TrainReadSerializer,
+    TrainCreateUpdateSerializer,
+    TrainImageSerializer
 )
 
 
-crew_request_example = OpenApiExample(
+train_request_example = OpenApiExample(
     name="Crew request example",
-    value=crew_create_update_request_json,
+    value=train_create_update_request_json,
     request_only=True,
 )
 
-crew_response_example = OpenApiExample(
+train_response_example = OpenApiExample(
     name="Crew response example",
-    value=crew_create_update_response_json,
+    value=train_create_update_response_json,
     response_only=True,
 )
 
-crew_image_response_example = OpenApiExample(
-    name="Crew upload image response example",
-    value=crew_upload_image_response_json,
+train_image_response_example = OpenApiExample(
+    name="Train upload image response example",
+    value=train_upload_image_response_json,
     response_only=True,
 )
 
@@ -54,9 +55,15 @@ empty_fields_example = OpenApiExample(
     response_only=True,
 )
 
-not_valid_names_example = OpenApiExample(
-    name="Not valid names example",
-    value=error_400_invalid_names,
+not_valid_cargo_num_and_places_in_cargo_example = OpenApiExample(
+    name="Not valid cargo num and places in cargo",
+    value=error_400_invalid_cargo_num_and_places_in_cargo,
+    response_only=True,
+)
+
+not_valid_train_type = OpenApiExample(
+    name="Not valid train type",
+    value=error_400_invalid_train_type,
     response_only=True,
 )
 
@@ -84,83 +91,106 @@ not_found_response = OpenApiResponse(
     ]
 )
 
-crew_set_schema = extend_schema_view(
+train_set_schema = extend_schema_view(
     list=extend_schema(
-        description="Retrieve list of crew members, allowing filter",
+        description="Retrieve list of trains, allowing filter",
         parameters=[
             OpenApiParameter(
-                name="full_name",
+                name="train_type_name",
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
                 description=(
-                    "Filter by full name or its part, case insensitive. "
-                    "Use space between first and last names. "
-                    "Examples: '?full_name=john', '?full_name=john doe'"
+                    "Filter by train_type_name or its part, case insensitive. "
+                    "Example: '?train_type_name=fast'"
+                ),
+                required=False,
+            ),
+            OpenApiParameter(
+                name="capacity_min",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description=(
+                    "Filter by min capacity. The result: all the trains that "
+                    "have capacity >= min_capacity. "
+                    "Example: '?min_capacity=240'"
+                ),
+                required=False,
+            ),
+            OpenApiParameter(
+                name="capacity_max",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description=(
+                    "Filter by max capacity. The result: all the trains that "
+                    "have capacity <= max_capacity. "
+                    "Example: '?max_capacity=240'"
                 ),
                 required=False,
             ),
         ],
         examples=[
             OpenApiExample(
-                name="Crew list example",
-                value=crew_list_json
+                name="Train list example",
+                value=train_list_json
             )
         ],
         responses={
-            200: CrewReadSerializer(many=False),
+            200: TrainReadSerializer(many=False),
             401: unauthorized_response
         },
     ),
-    create=extend_schema(
-        description="Create a new crew member",
-        request=CrewCreateUpdateSerializer(),
+    create = extend_schema(
+        description="Create a new train",
+        request=TrainCreateUpdateSerializer(),
         examples=[
-            crew_request_example,
-            crew_response_example
+            train_request_example,
+            train_response_example
         ],
         responses={
-            201: CrewCreateUpdateSerializer(),
+            201: TrainCreateUpdateSerializer(),
             400: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
                     empty_fields_example,
-                    not_valid_names_example
+                    not_valid_cargo_num_and_places_in_cargo_example,
+                    not_valid_train_type
                 ]
             ),
             401: unauthorized_response,
             403: forbidden_response,
-        }
+        },
     ),
     retrieve=extend_schema(
-        description="Retrieve detail crew member information",
+        description="Retrieve detail train information",
         examples=[
             OpenApiExample(
-                name="Crew detail example",
-                value=crew_detail_json,
+                name="Train detail example",
+                value=train_detail_json,
             )
         ],
         responses={
-            200: CrewReadSerializer(),
+            200: TrainReadSerializer(),
             401: unauthorized_response,
             404: not_found_response,
         },
     ),
     update=extend_schema(
-        description="Update crew member information",
-        request=CrewCreateUpdateSerializer(),
+        description="Update train information",
+        request=TrainCreateUpdateSerializer(),
         examples=[
-            crew_request_example,
-            crew_response_example
+            train_request_example,
+            train_response_example
         ],
         responses={
-            200: CrewCreateUpdateSerializer(),
+            200: TrainCreateUpdateSerializer(),
             400: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
                     empty_fields_example,
-                    not_valid_names_example
+                    not_valid_cargo_num_and_places_in_cargo_example,
+                    not_valid_train_type
                 ]
             ),
             401: unauthorized_response,
@@ -169,19 +199,20 @@ crew_set_schema = extend_schema_view(
         }
     ),
     partial_update=extend_schema(
-        description="Partial update crew member information",
-        request=CrewCreateUpdateSerializer(partial=True),
+        description="Partial update train information",
+        request=TrainCreateUpdateSerializer(partial=True),
         examples=[
-            crew_request_example,
-            crew_response_example
+            train_request_example,
+            train_response_example
         ],
         responses={
-            200: CrewCreateUpdateSerializer(partial=True),
+            200: TrainCreateUpdateSerializer(partial=True),
             400: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
-                    not_valid_names_example
+                    not_valid_cargo_num_and_places_in_cargo_example,
+                    not_valid_train_type
                 ]
             ),
             401: unauthorized_response,
@@ -190,7 +221,7 @@ crew_set_schema = extend_schema_view(
         }
     ),
     destroy=extend_schema(
-        description="Delete crew",
+        description="Delete train",
         responses={
             204: None,
             401: unauthorized_response,
@@ -199,12 +230,12 @@ crew_set_schema = extend_schema_view(
         }
     ),
     upload_image=extend_schema(
-        description="Upload image for a crew member. Up to 1 MB. "
+        description="Upload image for a train. Up to 1 MB. "
                     "Allowed extensions: png, jpg, jpeg",
-        request=CrewImageSerializer(),
-        examples=[crew_image_response_example],
+        request=TrainImageSerializer(),
+        examples=[train_image_response_example],
         responses={
-            200: CrewImageSerializer(),
+            200: TrainImageSerializer(),
             400: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
