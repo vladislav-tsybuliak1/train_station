@@ -17,7 +17,7 @@ def detail_url(route_id: int) -> str:
     return reverse("station-api:route-detail", args=[route_id])
 
 
-class NotAuthenticatedStationApiTests(TestCase):
+class NotAuthenticatedRouteApiTests(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
 
