@@ -156,7 +156,7 @@ route_set_schema = extend_schema_view(
             route_response_example
         ],
         responses={
-            201: RouteCreateUpdateSerializer(),
+            200: RouteCreateUpdateSerializer(),
             400: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
@@ -180,7 +180,7 @@ route_set_schema = extend_schema_view(
             route_response_example
         ],
         responses={
-            201: RouteCreateUpdateSerializer(partial=True),
+            200: RouteCreateUpdateSerializer(partial=True),
             400: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,

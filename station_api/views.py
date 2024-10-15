@@ -22,6 +22,7 @@ from station_api.models import (
     Trip,
     Order
 )
+from station_api.schemas.crews import crew_set_schema
 from station_api.schemas.routes import route_set_schema
 from station_api.schemas.stations import station_list_create_schema
 from station_api.serializers import (
@@ -78,6 +79,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+@crew_set_schema
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
