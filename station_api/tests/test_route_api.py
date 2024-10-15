@@ -80,7 +80,7 @@ class AuthenticatedRouteApiTests(TestCase):
 
     def test_route_list(self) -> None:
         response = self.client.get(ROUTE_URL)
-        routes = Route.objects.all()
+        routes = Route.objects.all()[:PAGE_SIZE]
         serializer = RouteReadSerializer(routes, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
