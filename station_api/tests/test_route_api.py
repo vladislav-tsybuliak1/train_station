@@ -136,7 +136,7 @@ class AuthenticatedRouteApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
-class AdminRouteApiTest(TestCase):
+class AdminRouteApiTests(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
