@@ -96,15 +96,11 @@ class AuthenticatedCrewApiTests(TestCase):
 
     def test_upload_image_to_crew_forbidden(self) -> None:
         url = image_upload_url(1)
-        with tempfile.NamedTemporaryFile(suffix=".jpg") as ntf:
-            img = Image.new("RGB", (10, 10))
-            img.save(ntf, format="JPEG")
-            ntf.seek(0)
-            response = self.client.post(
-                url,
-                {"crew_image": ntf},
-                format="multipart"
-            )
+        response = self.client.post(
+            url,
+            {"crew_image": "some_possible_image"},
+            format="multipart"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
