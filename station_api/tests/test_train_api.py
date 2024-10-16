@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 from PIL import Image
@@ -173,3 +174,139 @@ class AuthenticatedTrainApiTests(TestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class AdminTrainApiTests(TestCase):
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="test@test.com",
+            password="testpassword",
+            is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+        self.train_type_1 = TrainType.objects.create(name="Inter-city")
+        self.train_type_2 = TrainType.objects.create(name="Night")
+
+        self.train = Train.objects.create(
+            name="Tiger-01",
+            cargo_num=10,
+            places_in_cargo=50,
+            train_type=self.train_type_1
+        )
+
+        self.payload = {
+            "name": "Tiger-02",
+            "cargo_num": 5,
+            "places_in_cargo": 45,
+            "train_type": self.train_type_2.id
+        }
+
+    def test_create_train(self) -> None:
+        response = self.client.post(TRAIN_URL, self.payload)
+        train = Train.objects.get(id=response.data["id"])
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.payload["name"], train.name)
+        self.assertEqual(self.payload["cargo_num"], train.cargo_num)
+        self.assertEqual(
+            self.payload["places_in_cargo"],
+            train.places_in_cargo
+        )
+        self.assertEqual(
+            self.payload["train_type"],
+            train.train_type.id
+        )
+
+    def test_create_train_negative_cargo_and_places_in_cargo(self) -> None:
+        self.payload["cargo_num"] = -10
+        self.payload["places_in_cargo"] = -10
+        response = self.client.post(TRAIN_URL, self.payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_train(self) -> None:
+        train = self.train
+        response = self.client.put(detail_url(train.id), self.payload)
+        train.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.payload["name"], train.name)
+        self.assertEqual(self.payload["cargo_num"], train.cargo_num)
+        self.assertEqual(
+            self.payload["places_in_cargo"],
+            train.places_in_cargo
+        )
+        self.assertEqual(
+            self.payload["train_type"],
+            train.train_type.id
+        )
+
+    def test_partial_update_train(self) -> None:
+        train = self.train
+        self.payload.pop("train_type")
+        self.payload.pop("places_in_cargo")
+        response = self.client.patch(detail_url(train.id), self.payload)
+        train.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.payload["name"], train.name)
+        self.assertEqual(self.payload["cargo_num"], train.cargo_num)
+
+    def test_delete_route(self) -> None:
+        train = self.train
+        response = self.client.delete(detail_url(train.id))
+        train_exists = Train.objects.filter(id=train.id).exists()
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(train_exists)
+
+    def test_upload_image_to_train(self) -> None:
+        train = self.train
+        url = image_upload_url(train.id)
+        with tempfile.NamedTemporaryFile(suffix=".png") as ntf:
+            img = Image.new("RGB", (10, 10))
+            img.save(ntf, format="PNG")
+            ntf.seek(0)
+            response = self.client.post(
+                url,
+                {"train_image": ntf},
+                format="multipart"
+            )
+        train.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(os.path.exists(train.train_image.path))
+
+        train.train_image.delete()
+
+    def test_upload_not_valid_size_image_to_train(self) -> None:
+        train = self.train
+        url = image_upload_url(train.id)
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as ntf:
+            img = Image.new("RGB", (10000, 10000))
+            img.save(ntf, format="JPEG")
+            ntf.seek(0)
+            response = self.client.post(
+                url,
+                {"train_image": ntf},
+                format="multipart"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_upload_not_valid_extension_image_to_train(self) -> None:
+        train = self.train
+        url = image_upload_url(train.id)
+        with tempfile.NamedTemporaryFile(suffix=".gif") as ntf:
+            img = Image.new("RGB", (10, 10))
+            img.save(ntf, format="GIF")
+            ntf.seek(0)
+            response = self.client.post(
+                url,
+                {"train_image": ntf},
+                format="multipart"
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
