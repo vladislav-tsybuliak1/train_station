@@ -37,7 +37,7 @@ The **Train Station API Service** is a Django-based project for managing train s
     POSTGRES_PASSWORD=<your db password>
     POSTGRES_USER=<your db user>
     POSTGRES_DB=<your db>
-    POSTGRES_HOST=<your db host>
+    POSTGRES_HOST=db
     POSTGRES_PORT=5432
     PG_DATA=/var/lib/postgresql/data
     SECRET_KEY=<your Django secret key>
