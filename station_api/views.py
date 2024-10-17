@@ -202,7 +202,7 @@ class TripViewSet(viewsets.ModelViewSet):
             )
         if self.action == "retrieve":
             queryset = queryset.prefetch_related("crew")
-        return queryset
+        return queryset.order_by("departure_time")
 
 
 @order_list_create_schema
