@@ -311,7 +311,6 @@ class AdminTripApiTests(TestCase):
             "crew_ids": [self.crew_1.id, self.crew_2.id]
         }
 
-
     def test_create_trip(self) -> None:
         response = self.client.post(TRIP_URL, self.payload)
         trip = Trip.objects.get(id=response.data["id"])
@@ -338,7 +337,6 @@ class AdminTripApiTests(TestCase):
         response = self.client.post(TRIP_URL, self.payload)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
 
     def test_update_trip(self) -> None:
         trip = self.trip
