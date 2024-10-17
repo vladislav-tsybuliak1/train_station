@@ -1,7 +1,7 @@
 from django.db.models import QuerySet, F, Count
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -217,6 +217,7 @@ class OrderViewSet(
         "tickets__trip__train__train_type",
     )
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
