@@ -12,7 +12,7 @@ from station_api.models import (
     Trip,
     TrainType,
     Order,
-    Ticket
+    Ticket, Crew
 )
 from station_api.serializers import TripListSerializer, TripRetrieveSerializer
 from station_api.views import TripViewSet
@@ -119,6 +119,7 @@ class AuthenticatedTripApiTests(TestCase):
             "train_id": self.train_1.id,
             "departure_time": "2024-03-01T12:00:00Z",
             "arrival_time": "2024-03-01T14:00:00Z",
+            "crew_ids": [],
         }
 
     def test_trip_list(self) -> None:
@@ -251,3 +252,118 @@ class AuthenticatedTripApiTests(TestCase):
     def test_delete_trip_forbidden(self) -> None:
         response = self.client.delete(detail_url(self.trip_1.id))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class AdminTripApiTests(TestCase):
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="test@test.com",
+            password="testpassword",
+            is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+        self.station_1 = Station.objects.create(
+            name="Chernivtsi",
+            latitude=48.29,
+            longitude=25.39
+        )
+        self.station_2 = Station.objects.create(
+            name="Donetsk",
+            latitude=48.01,
+            longitude=37.81
+        )
+
+        self.route_1 = Route.objects.create(
+            source=self.station_1,
+            destination=self.station_2,
+            distance=950
+        )
+        self.route_2 = Route.objects.create(
+            source=self.station_2,
+            destination=self.station_1,
+            distance=950
+        )
+
+        self.train = Train.objects.create(
+            name="Eagle-01",
+            cargo_num=10,
+            places_in_cargo=50,
+            train_type=TrainType.objects.create(name="Inter-city")
+        )
+
+        self.trip = Trip.objects.create(
+            route=self.route_1,
+            train=self.train,
+            departure_time="2024-01-01T12:00:00Z",
+            arrival_time="2024-01-01T20:00:00Z"
+        )
+
+        self.crew_1 = Crew.objects.create(first_name="John", last_name="Doe")
+        self.crew_2 = Crew.objects.create(first_name="Johny", last_name="Don")
+
+        self.payload = {
+            "route_id": self.route_2.id,
+            "train_id": self.train.id,
+            "departure_time": "2024-03-01 12:00",
+            "arrival_time": "2024-03-01 14:00",
+            "crew_ids": [self.crew_1.id, self.crew_2.id]
+        }
+
+
+    def test_create_trip(self) -> None:
+        response = self.client.post(TRIP_URL, self.payload)
+        trip = Trip.objects.get(id=response.data["id"])
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.payload["route_id"], trip.route.id)
+        self.assertEqual(self.payload["train_id"], trip.train.id)
+        self.assertEqual(
+            self.payload["departure_time"],
+            trip.departure_time.strftime("%Y-%m-%d %H:%M")
+        )
+        self.assertEqual(
+            self.payload["arrival_time"],
+            trip.arrival_time.strftime("%Y-%m-%d %H:%M")
+        )
+        self.assertEqual(
+            self.payload["crew_ids"],
+            list(trip.crew.values_list("id", flat=True))
+        )
+
+    def test_create_trip_invalid_times(self) -> None:
+        self.payload["arrival_time"] = "2024-01-01T10:00:00Z"
+        self.payload["departure_time"] = "2024-01-01T11:00:00Z"
+        response = self.client.post(TRIP_URL, self.payload)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_update_trip(self) -> None:
+        trip = self.trip
+        response = self.client.put(detail_url(trip.id), self.payload)
+        trip.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.payload["route_id"], trip.route.id)
+        self.assertEqual(
+            self.payload["departure_time"],
+            trip.departure_time.strftime("%Y-%m-%d %H:%M")
+        )
+        self.assertEqual(
+            self.payload["arrival_time"],
+            trip.arrival_time.strftime("%Y-%m-%d %H:%M")
+        )
+        self.assertEqual(
+            self.payload["crew_ids"],
+            list(trip.crew.values_list("id", flat=True))
+        )
+
+    def test_delete_trip(self) -> None:
+        trip = self.trip
+        response = self.client.delete(detail_url(trip.id))
+        trip_exists = Trip.objects.filter(id=trip.id).exists()
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(trip_exists)
