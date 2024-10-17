@@ -176,13 +176,10 @@ class TripCreateUpdateSerializer(TripSerializer):
     class Meta(TripSerializer.Meta):
         fields = (
             "id",
-            "route",
             "route_id",
-            "train",
             "train_id",
             "departure_time",
             "arrival_time",
-            "crew",
             "crew_ids",
         )
 
