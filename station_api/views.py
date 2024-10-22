@@ -76,7 +76,7 @@ class RouteViewSet(viewsets.ModelViewSet):
             return RouteReadSerializer
         if self.action in ["create", "update", "partial_update"]:
             return RouteCreateUpdateSerializer
-        return RouteSerializer
+        return self.serializer_class
 
     def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
@@ -98,7 +98,7 @@ class CrewViewSet(viewsets.ModelViewSet):
             return CrewCreateUpdateSerializer
         if self.action == "upload_image":
             return CrewImageSerializer
-        return CrewSerializer
+        return self.serializer_class
 
     @action(
         methods=["POST"],
@@ -142,7 +142,7 @@ class TrainViewSet(viewsets.ModelViewSet):
             return TrainCreateUpdateSerializer
         if self.action == "upload_image":
             return TrainImageSerializer
-        return TrainSerializer
+        return self.serializer_class
 
     def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
@@ -188,7 +188,7 @@ class TripViewSet(viewsets.ModelViewSet):
             return TripRetrieveSerializer
         if self.action in ["create", "update", "partial_update"]:
             return TripCreateUpdateSerializer
-        return TripSerializer
+        return self.serializer_class
 
     def get_queryset(self) -> QuerySet:
         queryset = super().get_queryset()
@@ -227,7 +227,7 @@ class OrderViewSet(
     def get_serializer_class(self) -> type[OrderSerializer]:
         if self.action == "list":
             return OrderListSerializer
-        return OrderSerializer
+        return self.serializer_class
 
     def perform_create(self, serializer: OrderSerializer):
         serializer.save(user=self.request.user)
