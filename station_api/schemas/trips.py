@@ -6,16 +6,23 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse
 )
+from rest_framework import status
 
 from station_api.schemas.examples.common_responses import (
-    unauthorized_response, forbidden_response,
+    unauthorized_response,
+    forbidden_response,
 
 )
 from station_api.schemas.examples.trips import (
-    trip_list_json, trip_create_update_request_json,
-    trip_create_update_response_json, error_400_empty_fields,
-    error_400_invalid_route, error_400_invalid_train, error_400_invalid_crew,
-    error_400_arrival_time_before_departure_time, trip_detail_json,
+    trip_list_json,
+    trip_create_update_request_json,
+    trip_create_update_response_json,
+    error_400_empty_fields,
+    error_400_invalid_route,
+    error_400_invalid_train,
+    error_400_invalid_crew,
+    error_400_arrival_time_before_departure_time,
+    trip_detail_json,
     error_404_not_found
 )
 from station_api.serializers import (
@@ -141,8 +148,8 @@ trip_set_schema = extend_schema_view(
             )
         ],
         responses={
-            200: TripListSerializer(many=False),
-            401: unauthorized_response
+            status.HTTP_200_OK: TripListSerializer(many=False),
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response
         },
     ),
     create=extend_schema(
@@ -153,8 +160,8 @@ trip_set_schema = extend_schema_view(
             trip_response_example
         ],
         responses={
-            201: TripCreateUpdateSerializer(),
-            400: OpenApiResponse(
+            status.HTTP_201_CREATED: TripCreateUpdateSerializer(),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -165,8 +172,8 @@ trip_set_schema = extend_schema_view(
                     arrival_time_before_departure_time_example
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
         },
     ),
     retrieve=extend_schema(
@@ -178,9 +185,9 @@ trip_set_schema = extend_schema_view(
             )
         ],
         responses={
-            200: TripRetrieveSerializer(),
-            401: unauthorized_response,
-            404: not_found_response,
+            status.HTTP_200_OK: TripRetrieveSerializer(),
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         },
     ),
     update=extend_schema(
@@ -191,8 +198,8 @@ trip_set_schema = extend_schema_view(
             trip_response_example
         ],
         responses={
-            200: TripCreateUpdateSerializer(),
-            400: OpenApiResponse(
+            status.HTTP_200_OK: TripCreateUpdateSerializer(),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -203,9 +210,9 @@ trip_set_schema = extend_schema_view(
                     arrival_time_before_departure_time_example
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     ),
     partial_update=extend_schema(
@@ -216,8 +223,8 @@ trip_set_schema = extend_schema_view(
             trip_response_example
         ],
         responses={
-            200: TripCreateUpdateSerializer(partial=True),
-            400: OpenApiResponse(
+            status.HTTP_200_OK: TripCreateUpdateSerializer(partial=True),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -227,18 +234,18 @@ trip_set_schema = extend_schema_view(
                     arrival_time_before_departure_time_example
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     ),
     destroy=extend_schema(
         description="Delete trip",
         responses={
-            204: None,
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_204_NO_CONTENT: None,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     ),
 )

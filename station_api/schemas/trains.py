@@ -6,6 +6,7 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse
 )
+from rest_framework import status
 
 from station_api.schemas.examples.common_responses import (
     unauthorized_response,
@@ -135,8 +136,8 @@ train_set_schema = extend_schema_view(
             )
         ],
         responses={
-            200: TrainReadSerializer(many=False),
-            401: unauthorized_response
+            status.HTTP_200_OK: TrainReadSerializer(many=False),
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response
         },
     ),
     create=extend_schema(
@@ -147,8 +148,8 @@ train_set_schema = extend_schema_view(
             train_response_example
         ],
         responses={
-            201: TrainCreateUpdateSerializer(),
-            400: OpenApiResponse(
+            status.HTTP_201_CREATED: TrainCreateUpdateSerializer(),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -157,8 +158,8 @@ train_set_schema = extend_schema_view(
                     not_valid_train_type
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
         },
     ),
     retrieve=extend_schema(
@@ -170,9 +171,9 @@ train_set_schema = extend_schema_view(
             )
         ],
         responses={
-            200: TrainReadSerializer(),
-            401: unauthorized_response,
-            404: not_found_response,
+            status.HTTP_200_OK: TrainReadSerializer(),
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         },
     ),
     update=extend_schema(
@@ -183,8 +184,8 @@ train_set_schema = extend_schema_view(
             train_response_example
         ],
         responses={
-            200: TrainCreateUpdateSerializer(),
-            400: OpenApiResponse(
+            status.HTTP_200_OK: TrainCreateUpdateSerializer(),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -193,9 +194,9 @@ train_set_schema = extend_schema_view(
                     not_valid_train_type
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     ),
     partial_update=extend_schema(
@@ -206,8 +207,8 @@ train_set_schema = extend_schema_view(
             train_response_example
         ],
         responses={
-            200: TrainCreateUpdateSerializer(partial=True),
-            400: OpenApiResponse(
+            status.HTTP_200_OK: TrainCreateUpdateSerializer(partial=True),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -215,18 +216,18 @@ train_set_schema = extend_schema_view(
                     not_valid_train_type
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     ),
     destroy=extend_schema(
         description="Delete train",
         responses={
-            204: None,
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_204_NO_CONTENT: None,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     ),
     upload_image=extend_schema(
@@ -235,8 +236,8 @@ train_set_schema = extend_schema_view(
         request=TrainImageSerializer(),
         examples=[train_image_response_example],
         responses={
-            200: TrainImageSerializer(),
-            400: OpenApiResponse(
+            status.HTTP_200_OK: TrainImageSerializer(),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -244,9 +245,9 @@ train_set_schema = extend_schema_view(
                     not_valid_image_size
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     )
 )

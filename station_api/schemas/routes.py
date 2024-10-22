@@ -6,6 +6,7 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse
 )
+from rest_framework import status
 
 from station_api.schemas.examples.common_responses import (
     unauthorized_response,
@@ -108,8 +109,8 @@ route_set_schema = extend_schema_view(
             )
         ],
         responses={
-            200: RouteReadSerializer(many=True),
-            401: unauthorized_response
+            status.HTTP_200_OK: RouteReadSerializer(many=True),
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response
         },
     ),
     create=extend_schema(
@@ -120,8 +121,8 @@ route_set_schema = extend_schema_view(
             route_response_example
         ],
         responses={
-            201: RouteCreateUpdateSerializer(),
-            400: OpenApiResponse(
+            status.HTTP_201_CREATED: RouteCreateUpdateSerializer(),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -131,8 +132,8 @@ route_set_schema = extend_schema_view(
                     not_valid_source_destination
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
         }
     ),
     retrieve=extend_schema(
@@ -144,9 +145,9 @@ route_set_schema = extend_schema_view(
             )
         ],
         responses={
-            200: RouteReadSerializer(),
-            401: unauthorized_response,
-            404: not_found_response,
+            status.HTTP_200_OK: RouteReadSerializer(),
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         },
     ),
     update=extend_schema(
@@ -157,8 +158,8 @@ route_set_schema = extend_schema_view(
             route_response_example
         ],
         responses={
-            200: RouteCreateUpdateSerializer(),
-            400: OpenApiResponse(
+            status.HTTP_200_OK: RouteCreateUpdateSerializer(),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -168,9 +169,9 @@ route_set_schema = extend_schema_view(
                     not_valid_source_destination
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     ),
     partial_update=extend_schema(
@@ -181,8 +182,8 @@ route_set_schema = extend_schema_view(
             route_response_example
         ],
         responses={
-            200: RouteCreateUpdateSerializer(partial=True),
-            400: OpenApiResponse(
+            status.HTTP_200_OK: RouteCreateUpdateSerializer(partial=True),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -191,18 +192,18 @@ route_set_schema = extend_schema_view(
                     not_valid_source_destination
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     ),
     destroy=extend_schema(
         description="Delete route",
         responses={
-            204: None,
-            401: unauthorized_response,
-            403: forbidden_response,
-            404: not_found_response,
+            status.HTTP_204_NO_CONTENT: None,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
+            status.HTTP_404_NOT_FOUND: not_found_response,
         }
     )
 )

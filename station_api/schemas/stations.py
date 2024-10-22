@@ -6,6 +6,7 @@ from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse
 )
+from rest_framework import status
 
 from station_api.schemas.examples.common_responses import (
     unauthorized_response,
@@ -44,8 +45,8 @@ station_list_create_schema = extend_schema_view(
             )
         ],
         responses={
-            200: StationSerializer(many=True),
-            401: unauthorized_response
+            status.HTTP_200_OK: StationSerializer(many=True),
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response
         },
     ),
     create=extend_schema(
@@ -64,8 +65,8 @@ station_list_create_schema = extend_schema_view(
             )
         ],
         responses={
-            201: StationSerializer(),
-            400: OpenApiResponse(
+            status.HTTP_201_CREATED: StationSerializer(),
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 description="Bad request, invalid data",
                 response=OpenApiTypes.OBJECT,
                 examples=[
@@ -86,8 +87,8 @@ station_list_create_schema = extend_schema_view(
                     ),
                 ]
             ),
-            401: unauthorized_response,
-            403: forbidden_response,
+            status.HTTP_401_UNAUTHORIZED: unauthorized_response,
+            status.HTTP_403_FORBIDDEN: forbidden_response,
         }
     )
 )
