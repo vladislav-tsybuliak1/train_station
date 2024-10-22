@@ -263,7 +263,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class TicketListSerializer(TicketSerializer):
-    trip = TripListSerializer(many=False, read_only=True)
+    trip = TripListSerializer(read_only=True)
 
 
 class TicketSeatsSerializer(TicketSerializer):
@@ -273,8 +273,8 @@ class TicketSeatsSerializer(TicketSerializer):
 
 
 class TripRetrieveSerializer(TripListSerializer):
-    route = RouteReadSerializer(many=False, read_only=True)
-    train = TrainReadSerializer(many=False, read_only=True)
+    route = RouteReadSerializer(read_only=True)
+    train = TrainReadSerializer(read_only=True)
     crew = serializers.SerializerMethodField()
     taken_places = TicketSeatsSerializer(
         source="tickets",
