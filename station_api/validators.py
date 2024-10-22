@@ -22,7 +22,7 @@ def validate_name(name: str) -> None:
 
 def validate_image_size(file) -> None:
     filesize = file.size
-    max_upload_size = 1 * 1024 * 1024
+    max_upload_size = 1024 * 1024
 
     if filesize > max_upload_size:
         raise ValidationError("The image size should be less than 1 MB")
